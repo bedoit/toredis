@@ -10,8 +10,6 @@ from tornado.ioloop import IOLoop
 from tornado import stack_context
 
 from toredis.commands import RedisCommandsMixin
-from toredis.pipeline import Pipeline
-from toredis._compat import string_types, text_type
 
 
 logger = logging.getLogger(__name__)
@@ -97,27 +95,7 @@ class Client(RedisCommandsMixin):
         self._stream.write(self.format_message(args))
         if callback is not None:
             callback = stack_context.wrap(callback)
-        self.callbacks.append((callback, None))
-
-    def send_messages(self, args_pipeline, callback=None):
-        """
-            Send command pipeline to redis
-
-            :param args_pipeline:
-                Arguments pipeline to send
-            :param callback:
-                Callback
-        """
-
-        if self._sub_callback is not None:
-            raise ValueError('Cannot run pipeline over PUBSUB connection')
-
-        # Send command pipeline
-        messages = [self.format_message(args) for args in args_pipeline]
-        self._stream.write(b"".join(messages))
-        if callback is not None:
-            callback = stack_context.wrap(callback)
-        self.callbacks.append((callback, (len(messages), [])))
+        self.callbacks.append(callback)
 
     def format_message(self, args):
         """
@@ -129,10 +107,9 @@ class Client(RedisCommandsMixin):
         l = "*%d" % len(args)
         lines = [l.encode('utf-8')]
         for arg in args:
-            if not isinstance(arg, string_types):
+            if not isinstance(arg, str):
                 arg = str(arg)
-            if isinstance(arg, text_type):
-                arg = arg.encode('utf-8')
+            arg = arg.encode('utf-8')
             l = "$%d" % len(arg)
             lines.append(l.encode('utf-8'))
             lines.append(arg)
@@ -199,23 +176,10 @@ class Client(RedisCommandsMixin):
                     logger.exception('SUB callback failed')
             else:
                 if self.callbacks:
-                    callback, callback_data = self.callbacks[0]
-                    if callback_data is None:
-                        callback_resp = resp
-                    else:
-                        # handle pipeline responses
-                        num_resp, callback_resp = callback_data
-                        callback_resp.append(resp)
-                        while len(callback_resp) < num_resp:
-                            resp = self.reader.gets()
-                            if resp is False:
-                                # callback_resp is yet incomplete
-                                return
-                            callback_resp.append(resp)
-                    self.callbacks.popleft()
+                    callback = self.callbacks.popleft()
                     if callback is not None:
                         try:
-                            callback(callback_resp)
+                            callback(resp)
                         except:
                             logger.exception('Callback failed')
                 else:
@@ -233,10 +197,9 @@ class Client(RedisCommandsMixin):
 
         if callbacks:
             for cb in callbacks:
-                callback, callback_data = cb
-                if callback is not None:
+                if cb is not None:
                     try:
-                        callback(None)
+                        cb(None)
                     except:
                         logger.exception('Exception in callback')
 
@@ -253,6 +216,3 @@ class Client(RedisCommandsMixin):
     def _reset(self):
         self.reader = hiredis.Reader()
         self._sub_callback = None
-
-    def pipeline(self):
-        return Pipeline(self)

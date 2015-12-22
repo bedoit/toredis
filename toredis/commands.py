@@ -1,6 +1,3 @@
-from toredis._compat import string_types
-
-
 class RedisCommandsMixin(object):
 
     def append(self, key, value, callback=None):
@@ -78,7 +75,7 @@ class RedisCommandsMixin(object):
         args = ["BITOP"]
         args.append(operation)
         args.append(destkey)
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -98,7 +95,7 @@ class RedisCommandsMixin(object):
         O(1)
         """
         args = ["BLPOP"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -119,7 +116,7 @@ class RedisCommandsMixin(object):
         O(1)
         """
         args = ["BRPOP"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -155,7 +152,7 @@ class RedisCommandsMixin(object):
         ----------
         O(N) where N is the number of client connections
         """
-        args = ["CLIENT", "KILL"]
+        args = ["CLIENT KILL"]
         args.append(ip_port)
         self.send_message(args, callback)
 
@@ -167,7 +164,7 @@ class RedisCommandsMixin(object):
         ----------
         O(N) where N is the number of client connections
         """
-        self.send_message(["CLIENT", "LIST"], callback)
+        self.send_message(["CLIENT LIST"], callback)
 
     def config_get(self, parameter, callback=None):
         """
@@ -175,7 +172,7 @@ class RedisCommandsMixin(object):
 
             :param parameter:
         """
-        args = ["CONFIG", "GET"]
+        args = ["CONFIG GET"]
         args.append(parameter)
         self.send_message(args, callback)
 
@@ -187,7 +184,7 @@ class RedisCommandsMixin(object):
         ----------
         O(1)
         """
-        self.send_message(["CONFIG", "RESETSTAT"], callback)
+        self.send_message(["CONFIG RESETSTAT"], callback)
 
     def config_set(self, parameter, value, callback=None):
         """
@@ -196,7 +193,7 @@ class RedisCommandsMixin(object):
             :param parameter:
             :param value:
         """
-        args = ["CONFIG", "SET"]
+        args = ["CONFIG SET"]
         args.append(parameter)
         args.append(value)
         self.send_message(args, callback)
@@ -213,7 +210,7 @@ class RedisCommandsMixin(object):
 
             :param key:
         """
-        args = ["DEBUG", "OBJECT"]
+        args = ["DEBUG OBJECT"]
         args.append(key)
         self.send_message(args, callback)
 
@@ -221,7 +218,7 @@ class RedisCommandsMixin(object):
         """
         Make the server crash
         """
-        self.send_message(["DEBUG", "SEGFAULT"], callback)
+        self.send_message(["DEBUG SEGFAULT"], callback)
 
     def decr(self, key, callback=None):
         """
@@ -269,7 +266,7 @@ class RedisCommandsMixin(object):
         value is O(1).
         """
         args = ["DEL"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -322,18 +319,18 @@ class RedisCommandsMixin(object):
         ----------
         Depends on the script that is executed.
         """
-        message_args = ["EVAL"]
-        message_args.append(script)
-        message_args.append(len(keys))
-        if isinstance(keys, string_types):
-            message_args.append(keys)
+        args = ["EVAL"]
+        args.append(script)
+        args.append(len(keys))
+        if isinstance(keys, str):
+            args.append(keys)
         else:
-            message_args.extend(keys)
-        if isinstance(args, string_types):
-            message_args.append(args)
+            args.extend(keys)
+        if isinstance(args, str):
+            args.append(args)
         else:
-            message_args.extend(args)
-        self.send_message(message_args, callback)
+            args.extend(args)
+        self.send_message(args, callback)
 
     def evalsha(self, sha1, keys, args, callback=None):
         """
@@ -349,18 +346,18 @@ class RedisCommandsMixin(object):
         ----------
         Depends on the script that is executed.
         """
-        message_args = ["EVALSHA"]
-        message_args.append(sha1)
-        message_args.append(len(keys))
-        if isinstance(keys, string_types):
-            message_args.append(keys)
+        args = ["EVALSHA"]
+        args.append(sha1)
+        args.append(len(keys))
+        if isinstance(keys, str):
+            args.append(keys)
         else:
-            message_args.extend(keys)
-        if isinstance(args, string_types):
-            message_args.append(args)
+            args.extend(keys)
+        if isinstance(args, str):
+            args.append(args)
         else:
-            message_args.extend(args)
-        self.send_message(message_args, callback)
+            args.extend(args)
+        self.send_message(args, callback)
 
     def execute(self, callback=None):
         """
@@ -507,7 +504,7 @@ class RedisCommandsMixin(object):
         """
         args = ["HDEL"]
         args.append(key)
-        if isinstance(fields, string_types):
+        if isinstance(fields, str):
             args.append(fields)
         else:
             args.extend(fields)
@@ -637,7 +634,7 @@ class RedisCommandsMixin(object):
         """
         args = ["HMGET"]
         args.append(key)
-        if isinstance(fields, string_types):
+        if isinstance(fields, str):
             args.append(fields)
         else:
             args.extend(fields)
@@ -869,7 +866,7 @@ class RedisCommandsMixin(object):
         """
         args = ["LPUSH"]
         args.append(key)
-        if isinstance(values, string_types):
+        if isinstance(values, str):
             args.append(values)
         else:
             args.extend(values)
@@ -977,7 +974,7 @@ class RedisCommandsMixin(object):
         O(N) where N is the number of keys to retrieve.
         """
         args = ["MGET"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1084,7 +1081,7 @@ class RedisCommandsMixin(object):
         """
         args = ["OBJECT"]
         args.append(subcommand)
-        if isinstance(argumentss, string_types):
+        if isinstance(argumentss, str):
             args.append(argumentss)
         else:
             args.extend(argumentss)
@@ -1174,7 +1171,7 @@ class RedisCommandsMixin(object):
         subscribed to.
         """
         args = ["PSUBSCRIBE"]
-        if isinstance(patterns, string_types):
+        if isinstance(patterns, str):
             args.append(patterns)
         else:
             args.extend(patterns)
@@ -1227,7 +1224,7 @@ class RedisCommandsMixin(object):
         system (by any client).
         """
         args = ["PUNSUBSCRIBE"]
-        if isinstance(patterns, string_types):
+        if isinstance(patterns, str):
             args.append(patterns)
         else:
             args.extend(patterns)
@@ -1350,7 +1347,7 @@ class RedisCommandsMixin(object):
         """
         args = ["RPUSH"]
         args.append(key)
-        if isinstance(values, string_types):
+        if isinstance(values, str):
             args.append(values)
         else:
             args.extend(values)
@@ -1386,7 +1383,7 @@ class RedisCommandsMixin(object):
         """
         args = ["SADD"]
         args.append(key)
-        if isinstance(members, string_types):
+        if isinstance(members, str):
             args.append(members)
         else:
             args.extend(members)
@@ -1424,8 +1421,8 @@ class RedisCommandsMixin(object):
         O(N) with N being the number of scripts to check (so checking a single
         script is an O(1) operation).
         """
-        args = ["SCRIPT", "EXISTS"]
-        if isinstance(scripts, string_types):
+        args = ["SCRIPT EXISTS"]
+        if isinstance(scripts, str):
             args.append(scripts)
         else:
             args.extend(scripts)
@@ -1439,7 +1436,7 @@ class RedisCommandsMixin(object):
         ----------
         O(N) with N being the number of scripts in cache
         """
-        self.send_message(["SCRIPT", "FLUSH"], callback)
+        self.send_message(["SCRIPT FLUSH"], callback)
 
     def script_kill(self, callback=None):
         """
@@ -1449,7 +1446,7 @@ class RedisCommandsMixin(object):
         ----------
         O(1)
         """
-        self.send_message(["SCRIPT", "KILL"], callback)
+        self.send_message(["SCRIPT KILL"], callback)
 
     def script_load(self, script, callback=None):
         """
@@ -1461,7 +1458,7 @@ class RedisCommandsMixin(object):
         ----------
         O(N) with N being the length in bytes of the script body.
         """
-        args = ["SCRIPT", "LOAD"]
+        args = ["SCRIPT LOAD"]
         args.append(script)
         self.send_message(args, callback)
 
@@ -1477,7 +1474,7 @@ class RedisCommandsMixin(object):
         O(N) where N is the total number of elements in all given sets.
         """
         args = ["SDIFF"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1497,7 +1494,7 @@ class RedisCommandsMixin(object):
         """
         args = ["SDIFFSTORE"]
         args.append(destination)
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1629,7 +1626,7 @@ class RedisCommandsMixin(object):
         is the number of sets.
         """
         args = ["SINTER"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1650,7 +1647,7 @@ class RedisCommandsMixin(object):
         """
         args = ["SINTERSTORE"]
         args.append(destination)
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1813,7 +1810,7 @@ class RedisCommandsMixin(object):
         """
         args = ["SREM"]
         args.append(key)
-        if isinstance(members, string_types):
+        if isinstance(members, str):
             args.append(members)
         else:
             args.extend(members)
@@ -1845,7 +1842,7 @@ class RedisCommandsMixin(object):
         O(N) where N is the number of channels to subscribe to.
         """
         args = ["SUBSCRIBE"]
-        if isinstance(channels, string_types):
+        if isinstance(channels, str):
             args.append(channels)
         else:
             args.extend(channels)
@@ -1863,7 +1860,7 @@ class RedisCommandsMixin(object):
         O(N) where N is the total number of elements in all given sets.
         """
         args = ["SUNION"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1883,7 +1880,7 @@ class RedisCommandsMixin(object):
         """
         args = ["SUNIONSTORE"]
         args.append(destination)
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -1945,7 +1942,7 @@ class RedisCommandsMixin(object):
         O(N) where N is the number of clients already subscribed to a channel.
         """
         args = ["UNSUBSCRIBE"]
-        if isinstance(channels, string_types):
+        if isinstance(channels, str):
             args.append(channels)
         else:
             args.extend(channels)
@@ -1973,7 +1970,7 @@ class RedisCommandsMixin(object):
         O(1) for every key.
         """
         args = ["WATCH"]
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -2070,7 +2067,7 @@ class RedisCommandsMixin(object):
         args = ["ZINTERSTORE"]
         args.append(destination)
         args.append(len(keys))
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
@@ -2165,7 +2162,7 @@ class RedisCommandsMixin(object):
         """
         args = ["ZREM"]
         args.append(key)
-        if isinstance(members, string_types):
+        if isinstance(members, str):
             args.append(members)
         else:
             args.extend(members)
@@ -2315,7 +2312,7 @@ class RedisCommandsMixin(object):
         args = ["ZUNIONSTORE"]
         args.append(destination)
         args.append(len(keys))
-        if isinstance(keys, string_types):
+        if isinstance(keys, str):
             args.append(keys)
         else:
             args.extend(keys)
